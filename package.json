@@ -10,7 +10,11 @@
   "author": "Alex Sandri",
   "license": "MIT",
   "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
     "nodemon": "^2.0.4",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1"
   }
 }
