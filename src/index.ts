@@ -35,4 +35,6 @@ export const set = (document: Document) =>
             catch (err) {}
         }
     }
+
+    fs.writeJSONSync(path.join(lastPath, `${Date.now()}.randomdb`), document);
 }
