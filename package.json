@@ -11,6 +11,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
+    "@types/node": "^14.0.24",
     "nodemon": "^2.0.4",
     "typescript": "^3.9.7"
   },
