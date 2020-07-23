@@ -81,6 +81,8 @@ class Query
 
     public delete(): void
     {
-        // TODO
+        const document = this.get();
+
+        if (document) fs.unlinkSync(document.location);
     }
 }
