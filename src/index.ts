@@ -4,13 +4,18 @@ import random from "random";
 
 export interface Document
 {
+    metadata: DocumentMetaData,
+    data: DocumentData,
+}
+
+export interface DocumentMetaData
+{
     path: string,
-    data: DocumentData
 }
 
 export interface DocumentData
 {
-    [key: string]: any
+    [key: string]: any,
 }
 
 const MAX_DEPTH = 1;
@@ -54,7 +59,12 @@ class Query
             }
         }
 
-        const document = <Document>{ path: this.path, data };
+        const document = <Document>{
+            metadata: {
+                path: this.path,
+            },
+            data,
+        };
 
         fs.writeJSONSync(_path.join(lastPath, `${Date.now()}.randomdb`), document);
     }
