@@ -4,11 +4,11 @@ import random from "random";
 
 export interface Document
 {
-    metadata: DocumentMetaData,
+    metadata: DocumentMetadata,
     data: DocumentData,
 }
 
-export interface DocumentMetaData
+export interface DocumentMetadata
 {
     path: string,
 }
