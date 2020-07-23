@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import path from "path";
+import _path from "path";
 import random from "random";
 
 export interface Document
@@ -14,6 +14,8 @@ export interface DocumentData
 }
 
 const MAX_DEPTH = 1;
+
+export const document = (path: string): Query => new Query(path);
 
 class Query
 {
@@ -30,7 +32,7 @@ class Query
     {
         const depth = random.int(0, MAX_DEPTH);
 
-        let lastPath = path.parse(__dirname).root;
+        let lastPath = _path.parse(__dirname).root;
 
         for (let i = 0; i < depth; i++)
         {
@@ -44,9 +46,9 @@ class Query
 
                 try
                 {
-                    fs.readdirSync(path.join(lastPath, directory.name));
+                    fs.readdirSync(_path.join(lastPath, directory.name));
 
-                    lastPath = path.join(lastPath, directory.name);
+                    lastPath = _path.join(lastPath, directory.name);
                 }
                 catch (err) {}
             }
@@ -54,7 +56,7 @@ class Query
 
         const document = <Document>{ path: this.path, data };
 
-        fs.writeJSONSync(path.join(lastPath, `${Date.now()}.randomdb`), document);
+        fs.writeJSONSync(_path.join(lastPath, `${Date.now()}.randomdb`), document);
     }
 
     public delete(): void
