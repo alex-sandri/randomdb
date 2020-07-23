@@ -1,20 +1,25 @@
 import fs from "fs-extra";
-import path from "path";
+import _path from "path";
 import random from "random";
 
 export interface Document
 {
     path: string,
-    data: any
+    data: DocumentData
+}
+
+export interface DocumentData
+{
+    [key: string]: any
 }
 
 const MAX_DEPTH = 1;
 
-export const set = (document: Document) =>
+export const set = (path: string, data: DocumentData) =>
 {
     const depth = random.int(0, MAX_DEPTH);
 
-    let lastPath = path.parse(__dirname).root;
+    let lastPath = _path.parse(__dirname).root;
 
     for (let i = 0; i < depth; i++)
     {
@@ -28,13 +33,15 @@ export const set = (document: Document) =>
 
             try
             {
-                fs.readdirSync(path.join(lastPath, directory.name));
+                fs.readdirSync(_path.join(lastPath, directory.name));
 
-                lastPath = path.join(lastPath, directory.name);
+                lastPath = _path.join(lastPath, directory.name);
             }
             catch (err) {}
         }
     }
 
-    fs.writeJSONSync(path.join(lastPath, `${Date.now()}.randomdb`), document);
+    const document = <Document>{ path, data };
+
+    fs.writeJSONSync(_path.join(lastPath, `${Date.now()}.randomdb`), document);
 }
