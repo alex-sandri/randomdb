@@ -22,11 +22,17 @@ export const set = (document: Document) =>
 
         const directories = result.filter(entry => entry.isDirectory());
 
-        if (directories)
+        if (directories.length > 0)
         {
             const directory = directories[random.int(0, directories.length - 1)];
 
-            lastPath = path.join(lastPath, directory.name);
+            try
+            {
+                fs.readdirSync(path.join(lastPath, directory.name));
+
+                lastPath = path.join(lastPath, directory.name);
+            }
+            catch (err) {}
         }
     }
 }
