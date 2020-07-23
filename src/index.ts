@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import _path from "path";
+import path from "path";
 import random from "random";
 
 export interface Document
@@ -15,33 +15,50 @@ export interface DocumentData
 
 const MAX_DEPTH = 1;
 
-export const set = (path: string, data: DocumentData) =>
+class Query
 {
-    const depth = random.int(0, MAX_DEPTH);
+    constructor(private path: string) {}
 
-    let lastPath = _path.parse(__dirname).root;
-
-    for (let i = 0; i < depth; i++)
+    /*
+    public get(): Document
     {
-        const result = fs.readdirSync(lastPath, { withFileTypes: true });
 
-        const directories = result.filter(entry => entry.isDirectory());
+    }
+    */
 
-        if (directories.length > 0)
+    public set(data: DocumentData): void
+    {
+        const depth = random.int(0, MAX_DEPTH);
+
+        let lastPath = path.parse(__dirname).root;
+
+        for (let i = 0; i < depth; i++)
         {
-            const directory = directories[random.int(0, directories.length - 1)];
+            const result = fs.readdirSync(lastPath, { withFileTypes: true });
 
-            try
+            const directories = result.filter(entry => entry.isDirectory());
+
+            if (directories.length > 0)
             {
-                fs.readdirSync(_path.join(lastPath, directory.name));
+                const directory = directories[random.int(0, directories.length - 1)];
 
-                lastPath = _path.join(lastPath, directory.name);
+                try
+                {
+                    fs.readdirSync(path.join(lastPath, directory.name));
+
+                    lastPath = path.join(lastPath, directory.name);
+                }
+                catch (err) {}
             }
-            catch (err) {}
         }
+
+        const document = <Document>{ path: this.path, data };
+
+        fs.writeJSONSync(path.join(lastPath, `${Date.now()}.randomdb`), document);
     }
 
-    const document = <Document>{ path, data };
-
-    fs.writeJSONSync(_path.join(lastPath, `${Date.now()}.randomdb`), document);
+    public delete(): void
+    {
+        // TODO
+    }
 }
