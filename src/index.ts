@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import _path from "path";
 import random from "random";
+import glob from "glob";
 
 export interface Document
 {
@@ -27,12 +28,19 @@ class Query
 {
     constructor(private path: string) {}
 
-    /*
-    public get(): Document
+    public get(): Document | undefined
     {
+        const documentPath = glob.sync("*.randomdb").find(path =>
+        {
+            const document = <Document>fs.readJSONSync(path);
 
+            return document.metadata.path === this.path;
+        });
+
+        if (!documentPath) return;
+
+        return fs.readJSONSync(documentPath);
     }
-    */
 
     public set(data: DocumentData): void
     {
