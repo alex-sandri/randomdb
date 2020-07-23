@@ -4,6 +4,7 @@ import random from "random";
 
 export interface Document
 {
+    location: string,
     metadata: DocumentMetadata,
     data: DocumentData,
 }
@@ -59,14 +60,15 @@ class Query
             }
         }
 
-        const document = <Document>{
+        const document: Document = {
+            location: _path.join(lastPath, `${Date.now()}.randomdb`),
             metadata: {
                 path: this.path,
             },
             data,
         };
 
-        fs.writeJSONSync(_path.join(lastPath, `${Date.now()}.randomdb`), document);
+        fs.writeJSONSync(document.location, document);
     }
 
     public delete(): void
