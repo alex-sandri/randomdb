@@ -56,8 +56,10 @@ class Query
 
     public get(): Document | undefined
     {
-        const scanDirectory = (dir: string): string | undefined =>
+        const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
         {
+            if (currentDepth > MAX_DEPTH) return;
+
             const directories = this.getAllowedDirectories(dir);
 
             const getFile = (): string | undefined =>
@@ -80,10 +82,10 @@ class Query
 
             if (filePath) return filePath;
 
-            directories.forEach(directory => scanDirectory(directory));
+            directories.forEach(directory => scanDirectory(directory, currentDepth++));
         }
 
-        const result = scanDirectory(_path.parse(__dirname).root);
+        const result = scanDirectory(_path.parse(__dirname).root, 0);
 
         if (result) return fs.readJSONSync(result);
     }
@@ -132,3 +134,5 @@ class Query
         if (document) fs.unlinkSync(document.location);
     }
 }
+
+console.log(document("/").get());
