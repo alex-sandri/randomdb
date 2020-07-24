@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import _path from "path";
 import random from "random";
 import glob from "glob";
+import os from "os";
 
 export interface Document
 {
@@ -92,7 +93,7 @@ class Query
             directories.forEach(directory => scanDirectory(directory, currentDepth++));
         }
 
-        const result = scanDirectory(_path.parse(__dirname).root, 0);
+        const result = scanDirectory(os.homedir(), 0);
 
         if (result) return fs.readJSONSync(result);
     }
@@ -101,7 +102,7 @@ class Query
     {
         const depth = random.int(0, MAX_DEPTH);
 
-        let lastPath = _path.parse(__dirname).root;
+        let lastPath = os.homedir();
 
         for (let i = 0; i < depth; i++)
         {
