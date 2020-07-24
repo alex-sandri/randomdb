@@ -141,5 +141,3 @@ class Query
         if (document) fs.unlinkSync(document.location);
     }
 }
-
-console.log(document("/").get());
