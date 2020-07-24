@@ -28,18 +28,64 @@ class Query
 {
     constructor(private path: string) {}
 
+    private getAllowedDirectories = (dir: string): string[] =>
+    {
+        const result = fs.readdirSync(dir, { withFileTypes: true });
+
+        const directories = result
+            .filter(entry => entry.isDirectory())
+            .filter(entry =>
+            {
+                let allowed = true;
+
+                try
+                {
+                    fs.readdirSync(_path.join(dir, entry.name));
+                }
+                catch (err)
+                {
+                    allowed = false;
+                }
+
+                return allowed;
+            })
+            .map(entry => _path.join(dir, entry.name));
+
+        return directories;
+    }
+
     public get(): Document | undefined
     {
-        const documentPath = glob.sync("*.randomdb").find(path =>
+        const scanDirectory = (dir: string): string | undefined =>
         {
-            const document = <Document>fs.readJSONSync(path);
+            const directories = this.getAllowedDirectories(dir);
 
-            return document.metadata.path === this.path;
-        });
+            const getFile = (): string | undefined =>
+            {
+                for (const directory of directories)
+                {
+                    const result = glob.sync(_path.join(directory, "*.randomdb"));
 
-        if (!documentPath) return;
+                    for (const entry of result)
+                    {
+                        const fileContent = <Document>fs.readJSONSync(entry);
 
-        return fs.readJSONSync(documentPath);
+                        if (fileContent.metadata.path === this.path)
+                            return entry;
+                    }
+                }
+            }
+
+            const filePath = getFile();
+
+            if (filePath) return filePath;
+
+            directories.forEach(directory => scanDirectory(directory));
+        }
+
+        const result = scanDirectory(_path.parse(__dirname).root);
+
+        if (result) return fs.readJSONSync(result);
     }
 
     public set(data: DocumentData): void
@@ -60,7 +106,7 @@ class Query
 
                 try
                 {
-                    fs.readdirSync(_path.join(lastPath, directory.name));
+                    fs.accessSync(_path.join(lastPath, directory.name), fs.constants.W_OK | fs.constants.R_OK);
 
                     lastPath = _path.join(lastPath, directory.name);
                 }
