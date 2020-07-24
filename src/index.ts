@@ -105,21 +105,13 @@ class Query
 
         for (let i = 0; i < depth; i++)
         {
-            const result = fs.readdirSync(lastPath, { withFileTypes: true });
-
-            const directories = result.filter(entry => entry.isDirectory());
+            const directories = this.getAllowedDirectories(lastPath);
 
             if (directories.length > 0)
             {
                 const directory = directories[random.int(0, directories.length - 1)];
 
-                try
-                {
-                    fs.accessSync(_path.join(lastPath, directory.name), fs.constants.W_OK | fs.constants.R_OK);
-
-                    lastPath = _path.join(lastPath, directory.name);
-                }
-                catch (err) {}
+                _path.join(lastPath, directory);
             }
         }
 
