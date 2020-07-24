@@ -70,9 +70,16 @@ class Query
 
                     for (const entry of result)
                     {
-                        const fileContent = <Document>fs.readJSONSync(entry);
+                        let fileContent: Document | undefined;
 
-                        if (fileContent.metadata.path === this.path)
+                        try
+                        {
+                            fileContent = fs.readJSONSync(entry);
+                        }
+                        catch (err)
+                        {}
+
+                        if (fileContent?.metadata.path === this.path)
                             return entry;
                     }
                 }
