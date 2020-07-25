@@ -25,8 +25,17 @@ const MAX_DEPTH = 1;
 
 export const document = (path: string): Query => new Query(path);
 
+interface QueryFilter
+{
+    field: string,
+    condition: "==",
+    value: any,
+}
+
 class Query
 {
+    private filters: QueryFilter[] = [];
+
     constructor(private path: string) {}
 
     private getAllowedDirectories = (dir: string): string[] =>
@@ -132,5 +141,12 @@ class Query
         const document = this.get();
 
         if (document) fs.unlinkSync(document.location);
+    }
+
+    public where(filter: QueryFilter): Query
+    {
+        this.filters.push(filter);
+
+        return this;
     }
 }
