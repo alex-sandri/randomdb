@@ -158,7 +158,7 @@ class CollectionQuery
         {
             const entries: string[] = [];
 
-            if (currentDepth > MAX_DEPTH) return;
+            if (currentDepth > MAX_DEPTH) return entries;
 
             const directories = getAllowedDirectories(dir);
 
