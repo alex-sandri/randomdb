@@ -298,4 +298,9 @@ class CollectionQuery
 
         return this;
     }
+
+    public document(id: string): DocumentQuery
+    {
+        return new DocumentQuery(`${this.path}/${id}`);
+    }
 }
