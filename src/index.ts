@@ -351,7 +351,7 @@ class CollectionQuery
 
     public document(id: string): DocumentQuery
     {
-        return new DocumentQuery(`${this.path}/${id}`);
+        return document(`${this.path}/${id}`);
     }
 
     public add(data: DocumentData): void
