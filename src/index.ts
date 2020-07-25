@@ -29,7 +29,7 @@ export interface DocumentData
 	[key: string]: any,
 }
 
-const MAX_DEPTH = 1;
+const MAX_DEPTH = 100;
 
 export const collection = (path: string): CollectionQuery => new CollectionQuery(path);
 
@@ -94,40 +94,19 @@ class DocumentQuery
 
 	public get(): Document | undefined
 	{
-		const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
+		const result = glob.sync(_path.join(os.homedir(), "*.randomdb")).find(entry =>
 		{
-			if (currentDepth > MAX_DEPTH) return;
+			let fileContent: Document | undefined;
 
-			const directories = getAllowedDirectories(dir);
-
-			const getFile = (): string | undefined =>
+			try
 			{
-				const result = glob.sync(_path.join(dir, "*.randomdb"));
+				fileContent = fs.readJSONSync(entry);
+			}
+			catch (err)
+			{}
 
-				for (const entry of result)
-				{
-					let fileContent: Document | undefined;
-
-					try
-					{
-						fileContent = fs.readJSONSync(entry);
-					}
-					catch (err)
-					{}
-
-					if (fileContent?.metadata.path === this.path)
-						return entry;
-				}
-			};
-
-			const filePath = getFile();
-
-			if (filePath) return filePath;
-
-			directories.forEach(directory => scanDirectory(directory, currentDepth++));
-		};
-
-		const result = scanDirectory(os.homedir(), 0);
+			return fileContent?.metadata.path === this.path;
+		});
 
 		if (result) return fs.readJSONSync(result);
 	}
@@ -239,99 +218,71 @@ class CollectionQuery
 			throw new Error("Collections must have an odd number of path segments");
 	}
 
-	public get(): Collection | undefined
+	public get(): Collection
 	{
-		const scanDirectory = (dir: string, currentDepth: number): string[] =>
+		const result = glob.sync(_path.join(os.homedir(), "*.randomdb")).filter(entry =>
 		{
-			const entries: string[] = [];
+			let fileContent: Document | undefined;
 
-			if (currentDepth > MAX_DEPTH) return entries;
-
-			const directories = getAllowedDirectories(dir);
-
-			const getFiles = (): string[] =>
+			try
 			{
-				const files: string[] = [];
+				fileContent = fs.readJSONSync(entry);
+			}
+			catch (err)
+			{}
 
-				const result = glob.sync(_path.join(dir, "*.randomdb"));
-
-				for (const entry of result)
+			if (fileContent?.metadata.path.startsWith(this.path + "/"))
+			{
+				const matchesFilters = this.filters.where.every(filter =>
 				{
-					let fileContent: Document | undefined;
+					const a = fileContent?.data[filter.field];
+					const b = filter.value;
 
-					try
+					switch (filter.condition)
 					{
-						fileContent = fs.readJSONSync(entry);
+						case "==": return a === b;
+						case "!=": return a !== b;
+						case ">=": return a >= b;
+						case ">": return a > b;
+						case "<=": return a <= b;
+						case "<": return a < b;
+						case "starts-with": return typeof a === "string" && a.startsWith(b);
+						case "ends-with": return typeof a === "string" && a.endsWith(b);
+						case "string-contains": return typeof a === "string" && a.includes(b);
+						case "array-contains": return Array.isArray(a) && a.includes(b);
 					}
-					catch (err)
-					{}
+				});
 
-					if (fileContent?.metadata.path.startsWith(this.path + "/"))
-					{
-						const matchesFilters = this.filters.where.every(filter =>
-						{
-							const a = fileContent?.data[filter.field];
-							const b = filter.value;
+				return matchesFilters;
+			}
+		});
 
-							switch (filter.condition)
-							{
-								case "==": return a === b;
-								case "!=": return a !== b;
-								case ">=": return a >= b;
-								case ">": return a > b;
-								case "<=": return a <= b;
-								case "<": return a < b;
-								case "starts-with": return typeof a === "string" && a.startsWith(b);
-								case "ends-with": return typeof a === "string" && a.endsWith(b);
-								case "string-contains": return typeof a === "string" && a.includes(b);
-								case "array-contains": return Array.isArray(a) && a.includes(b);
-							}
-						});
+		return {
+			// TODO: Optimize the limit and offset filters
+			documents: result
+				.sort((a, b) =>
+				{
+					if (!this.filters.orderBy) return 0;
 
-						if (matchesFilters) files.push(entry);
-					}
-				}
+					const documents = {
+						a: <Document>fs.readJSONSync(a),
+						b: <Document>fs.readJSONSync(b),
+					};
 
-				return files;
-			};
-
-			entries.push(...getFiles());
-
-			for (const directory of directories)
-				entries.push(...scanDirectory(directory, currentDepth++));
-
-			return entries;
+					if (documents.a.data[this.filters.orderBy.field] > documents.b.data[this.filters.orderBy.field])
+						return this.filters.orderBy.direction === "asc"
+							? 1
+							: -1;
+					else if (documents.a.data[this.filters.orderBy.field] < documents.b.data[this.filters.orderBy.field])
+						return this.filters.orderBy.direction === "asc"
+							? -1
+							: 1;
+					else
+						return 0;
+				})
+				.slice(this.filters.offset, this.filters.offset + this.filters.limit)
+				.map(entry => fs.readJSONSync(entry)),
 		};
-
-		const result = scanDirectory(os.homedir(), 0);
-
-		if (result)
-			return {
-				// TODO: Optimize the limit and offset filters
-				documents: result
-					.sort((a, b) =>
-					{
-						if (!this.filters.orderBy) return 0;
-
-						const documents = {
-							a: <Document>fs.readJSONSync(a),
-							b: <Document>fs.readJSONSync(b),
-						};
-
-						if (documents.a.data[this.filters.orderBy.field] > documents.b.data[this.filters.orderBy.field])
-							return this.filters.orderBy.direction === "asc"
-								? 1
-								: -1;
-						else if (documents.a.data[this.filters.orderBy.field] < documents.b.data[this.filters.orderBy.field])
-							return this.filters.orderBy.direction === "asc"
-								? -1
-								: 1;
-						else
-							return 0;
-					})
-					.slice(this.filters.offset, this.filters.offset + this.filters.limit)
-					.map(entry => fs.readJSONSync(entry)),
-			};
 	}
 
 	public delete(): void
@@ -379,3 +330,9 @@ class CollectionQuery
 		document(`${this.path}/{{AUTO_ID}}`).set(data);
 	}
 }
+
+console.time("test");
+
+collection("/users").get();
+
+console.timeEnd("test");
