@@ -79,24 +79,21 @@ class DocumentQuery
 
             const getFile = (): string | undefined =>
             {
-                for (const directory of directories)
+                const result = glob.sync(_path.join(dir, "*.randomdb"));
+
+                for (const entry of result)
                 {
-                    const result = glob.sync(_path.join(directory, "*.randomdb"));
+                    let fileContent: Document | undefined;
 
-                    for (const entry of result)
+                    try
                     {
-                        let fileContent: Document | undefined;
-
-                        try
-                        {
-                            fileContent = fs.readJSONSync(entry);
-                        }
-                        catch (err)
-                        {}
-
-                        if (fileContent?.metadata.path === this.path)
-                            return entry;
+                        fileContent = fs.readJSONSync(entry);
                     }
+                    catch (err)
+                    {}
+
+                    if (fileContent?.metadata.path === this.path)
+                        return entry;
                 }
             }
 
@@ -165,33 +162,30 @@ class CollectionQuery
 
             const getFile = (): string | undefined =>
             {
-                for (const directory of directories)
+                const result = glob.sync(_path.join(dir, "*.randomdb"));
+
+                for (const entry of result)
                 {
-                    const result = glob.sync(_path.join(directory, "*.randomdb"));
+                    let fileContent: Document | undefined;
 
-                    for (const entry of result)
+                    try
                     {
-                        let fileContent: Document | undefined;
+                        fileContent = fs.readJSONSync(entry);
+                    }
+                    catch (err)
+                    {}
 
-                        try
+                    if (fileContent?.metadata.path.startsWith(this.path + "/"))
+                    {
+                        const matchesFilters = this.filters.every(filter =>
                         {
-                            fileContent = fs.readJSONSync(entry);
-                        }
-                        catch (err)
-                        {}
-
-                        if (fileContent?.metadata.path.startsWith(this.path + "/"))
-                        {
-                            const matchesFilters = this.filters.every(filter =>
+                            switch (filter.condition)
                             {
-                                switch (filter.condition)
-                                {
-                                    case "==": return fileContent?.data[filter.field] === filter.value;
-                                }
-                            });
+                                case "==": return fileContent?.data[filter.field] === filter.value;
+                            }
+                        });
 
-                            if (matchesFilters) return entry;
-                        }
+                        if (matchesFilters) return entry;
                     }
                 }
             }
