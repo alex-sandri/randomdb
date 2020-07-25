@@ -353,4 +353,9 @@ class CollectionQuery
     {
         return new DocumentQuery(`${this.path}/${id}`);
     }
+
+    public add(data: DocumentData): void
+    {
+        document(`${this.path}/{{AUTO_ID}}`).set(data);
+    }
 }
