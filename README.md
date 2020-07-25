@@ -26,6 +26,13 @@ randomDb.document("/path/to/a/document").set({
     field: "value",
 });
 ```
+or
+```typescript
+randomDb.collection("/collection").add({
+    field: "value"
+});
+```
+if you want a random id as the document id
 
 ### Retrieve a document
 
