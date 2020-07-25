@@ -214,7 +214,8 @@ class CollectionQuery
 
         if (result)
             return {
-                documents: result.map(entry => fs.readJSONSync(entry)),
+                // TODO: Optimize the limit filter
+                documents: result.slice(0, this.filters.limit).map(entry => fs.readJSONSync(entry)),
             };
     }
 
