@@ -5,7 +5,10 @@
   "main": "lib/index.js",
   "scripts": {
     "start": "nodemon -e ts --watch src/ --exec npm run build",
-    "build": "tsc"
+    "build": "tsc",
+    "preversion": "npm run lint",
+    "postversion": "git push origin master --follow-tags && npm publish",
+    "lint": "eslint src/**/*.ts"
   },
   "author": "Alex Sandri",
   "license": "MIT",
