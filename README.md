@@ -72,6 +72,8 @@ Supported conditions:
  - `<=`
  - `<`
  - `starts-with`
+ - `ends-with`
+ - `string-contains`
  - `array-contains`
 
 ```typescript

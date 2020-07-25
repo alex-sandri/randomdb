@@ -38,7 +38,17 @@ export const document = (path: string): DocumentQuery => new DocumentQuery(path)
 interface QueryFilter
 {
     field: string,
-    condition: "==" | "!=" | ">=" | ">" | "<=" | "<" | "starts-with" | "array-contains",
+    condition:
+        "=="
+        | "!="
+        | ">="
+        | ">"
+        | "<="
+        | "<"
+        | "starts-with"
+        | "ends-with"
+        | "string-contains"
+        | "array-contains",
     value: any,
 }
 
@@ -266,6 +276,8 @@ class CollectionQuery
                                 case "<=": return a <= b;
                                 case "<": return a < b;
                                 case "starts-with": return typeof a === "string" && a.startsWith(b);
+                                case "ends-with": return typeof a === "string" && a.endsWith(b);
+                                case "string-contains": return typeof a === "string" && a.includes(b);
                                 case "array-contains": return Array.isArray(a) && a.includes(b);
                             }
                         });
