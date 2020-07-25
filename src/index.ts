@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import _path from "path";
 import random from "random";
 import glob from "glob";
-import os, { type } from "os";
+import os from "os";
 import crypto from "crypto";
 
 export interface Document
