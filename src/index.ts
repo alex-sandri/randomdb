@@ -78,6 +78,8 @@ class DocumentQuery
             .filter(segment => segment !== "")
             .length % 2 !== 0)
         throw new Error("Documents must have an even number of path segments");
+
+        this.parsePath();
     }
 
     public get(): Document | undefined
@@ -171,6 +173,25 @@ class DocumentQuery
         const document = this.get();
 
         if (document) fs.unlinkSync(document.location);
+    }
+
+    private generateId = (): string =>
+    {
+        const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        const ID_LENGTH = 25;
+
+        let id = "";
+
+        for (let i = 0; i < ID_LENGTH; i++)
+            id += charset[random.int(0, charset.length - 1)];
+
+        return id;
+    }
+
+    private parsePath = () =>
+    {
+        this.path.replace(/{{AUTO_ID}}/, this.generateId());
     }
 }
 
