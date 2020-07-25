@@ -68,7 +68,15 @@ const getAllowedDirectories = (dir: string): string[] =>
 
 class DocumentQuery
 {
-    constructor(private path: string) {}
+    constructor(private path: string)
+    {
+        if (path
+            .split("/")
+            .filter(segment => segment !== "/")
+            .filter(segment => segment !== "")
+            .length % 2 !== 0)
+        throw new Error("Documents must have an even number of path segments");
+    }
 
     public get(): Document | undefined
     {
@@ -163,7 +171,15 @@ class CollectionQuery
         offset: 0,
     };
 
-    constructor(private path: string) {}
+    constructor(private path: string)
+    {
+        if (path
+                .split("/")
+                .filter(segment => segment !== "/")
+                .filter(segment => segment !== "")
+                .length % 2 === 0)
+            throw new Error("Collections must have an odd number of path segments");
+    }
 
     public get(): Collection | undefined
     {
