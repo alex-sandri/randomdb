@@ -219,7 +219,7 @@ class CollectionQuery
             return {
                 // TODO: Optimize the limit and offset filters
                 documents: result
-                    .slice(this.filters.offset, this.filters.limit)
+                    .slice(this.filters.offset, this.filters.offset + this.filters.limit)
                     .map(entry => fs.readJSONSync(entry)),
             };
     }
