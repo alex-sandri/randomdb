@@ -154,14 +154,18 @@ class CollectionQuery
 
     public get(): Collection | undefined
     {
-        const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
+        const scanDirectory = (dir: string, currentDepth: number): string[] =>
         {
+            const entries: string[] = [];
+
             if (currentDepth > MAX_DEPTH) return;
 
             const directories = getAllowedDirectories(dir);
 
-            const getFile = (): string | undefined =>
+            const getFiles = (): string[] =>
             {
+                const files: string[] = [];
+
                 const result = glob.sync(_path.join(dir, "*.randomdb"));
 
                 for (const entry of result)
@@ -185,21 +189,27 @@ class CollectionQuery
                             }
                         });
 
-                        if (matchesFilters) return entry;
+                        if (matchesFilters) files.push(entry);
                     }
                 }
+
+                return files;
             }
 
-            const filePath = getFile();
+            entries.push(...getFiles());
 
-            if (filePath) return filePath;
+            for (const directory of directories)
+                entries.push(...scanDirectory(directory, currentDepth++));
 
-            directories.forEach(directory => scanDirectory(directory, currentDepth++));
+            return entries;
         }
 
         const result = scanDirectory(os.homedir(), 0);
 
-        if (result) return fs.readJSONSync(result);
+        if (result)
+            return {
+                documents: result.map(entry => fs.readJSONSync(entry)),
+            };
     }
 
     public delete(): void
