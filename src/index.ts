@@ -153,6 +153,10 @@ class CollectionQuery
         where: QueryFilter[],
         limit: number,
         offset: number,
+        orderBy?: {
+            field: string,
+            direction: "asc" | "desc"
+        },
     } = {
         where: [],
         limit: Infinity,
@@ -248,6 +252,13 @@ class CollectionQuery
     public offset(offset: number): CollectionQuery
     {
         this.filters.offset = offset;
+
+        return this;
+    }
+
+    public orderBy(field: string, direction: "asc" | "desc"): CollectionQuery
+    {
+        this.filters.orderBy = { field, direction };
 
         return this;
     }
