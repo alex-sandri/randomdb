@@ -76,7 +76,7 @@ const getAllowedDirectories = (dir: string): string[] =>
 		.map(entry => _path.join(dir, entry.name));
 
 	return directories;
-}
+};
 
 class DocumentQuery
 {
@@ -87,7 +87,7 @@ class DocumentQuery
 			.filter(segment => segment !== "/")
 			.filter(segment => segment !== "")
 			.length % 2 !== 0)
-		throw new Error("Documents must have an even number of path segments");
+			throw new Error("Documents must have an even number of path segments");
 
 		this.parsePath();
 	}
@@ -118,14 +118,14 @@ class DocumentQuery
 					if (fileContent?.metadata.path === this.path)
 						return entry;
 				}
-			}
+			};
 
 			const filePath = getFile();
 
 			if (filePath) return filePath;
 
 			directories.forEach(directory => scanDirectory(directory, currentDepth++));
-		}
+		};
 
 		const result = scanDirectory(os.homedir(), 0);
 
@@ -232,10 +232,10 @@ class CollectionQuery
 	constructor(private path: string)
 	{
 		if (path
-				.split("/")
-				.filter(segment => segment !== "/")
-				.filter(segment => segment !== "")
-				.length % 2 === 0)
+			.split("/")
+			.filter(segment => segment !== "/")
+			.filter(segment => segment !== "")
+			.length % 2 === 0)
 			throw new Error("Collections must have an odd number of path segments");
 	}
 
@@ -293,7 +293,7 @@ class CollectionQuery
 				}
 
 				return files;
-			}
+			};
 
 			entries.push(...getFiles());
 
@@ -301,7 +301,7 @@ class CollectionQuery
 				entries.push(...scanDirectory(directory, currentDepth++));
 
 			return entries;
-		}
+		};
 
 		const result = scanDirectory(os.homedir(), 0);
 
