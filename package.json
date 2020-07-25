@@ -1,5 +1,5 @@
 {
-  "name": "randomdb",
+  "name": "@alex-sandri/randomdb",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -12,6 +12,9 @@
   },
   "author": "Alex Sandri",
   "license": "MIT",
+  "files": [
+    "lib/**/*"
+  ],
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.25",
@@ -27,5 +30,19 @@
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "random": "^2.2.0"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-sandri/randomdb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alex-sandri/randomdb/issues"
+  },
+  "homepage": "https://github.com/alex-sandri/randomdb#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
