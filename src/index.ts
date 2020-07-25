@@ -147,6 +147,19 @@ class DocumentQuery
         fs.writeJSONSync(document.location, document);
     }
 
+    public update(data: DocumentData): void
+    {
+        const document = this.get();
+
+        if (!document)
+            throw new Error(`The document at '${this.path}' does not exist`);
+
+        for (const [ key, value ] of Object.entries(data))
+            document.data[key] = value;
+
+        fs.writeJSONSync(document.location, document);
+    }
+
     public delete(): void
     {
         const document = this.get();
