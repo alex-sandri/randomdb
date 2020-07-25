@@ -330,9 +330,3 @@ class CollectionQuery
 		document(`${this.path}/{{AUTO_ID}}`).set(data);
 	}
 }
-
-console.time("test");
-
-collection("/users").get();
-
-console.timeEnd("test");
