@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import _path from "path";
 import random from "random";
 import glob from "glob";
-import os from "os";
+import os, { type } from "os";
 import crypto from "crypto";
 
 export interface Document
@@ -36,7 +36,7 @@ export const document = (path: string): DocumentQuery => new DocumentQuery(path)
 interface QueryFilter
 {
     field: string,
-    condition: "==",
+    condition: "==" | "!=" | ">=" | ">" | "<=" | "<" | "starts-with" | "array-contains",
     value: any,
 }
 
@@ -212,9 +212,19 @@ class CollectionQuery
                     {
                         const matchesFilters = this.filters.where.every(filter =>
                         {
+                            const a = fileContent?.data[filter.field];
+                            const b = filter.value;
+
                             switch (filter.condition)
                             {
-                                case "==": return fileContent?.data[filter.field] === filter.value;
+                                case "==": return a === b;
+                                case "!=": return a !== b;
+                                case ">=": return a >= b;
+                                case ">": return a > b;
+                                case "<=": return a <= b;
+                                case "<": return a < b;
+                                case "starts-with": return typeof a === "string" && a.startsWith(b);
+                                case "array-contains": return Array.isArray(a) && a.includes(b);
                             }
                         });
 
