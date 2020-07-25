@@ -11,6 +11,11 @@ export interface Document
     data: DocumentData,
 }
 
+export interface Collection
+{
+    documents: Document[],
+}
+
 export interface DocumentMetadata
 {
     path: string,
@@ -23,7 +28,9 @@ export interface DocumentData
 
 const MAX_DEPTH = 1;
 
-export const document = (path: string): Query => new Query(path);
+export const collection = (path: string): CollectionQuery => new CollectionQuery(path);
+
+export const document = (path: string): DocumentQuery => new DocumentQuery(path);
 
 interface QueryFilter
 {
@@ -32,37 +39,35 @@ interface QueryFilter
     value: any,
 }
 
-class Query
+const getAllowedDirectories = (dir: string): string[] =>
 {
-    private filters: QueryFilter[] = [];
+    const result = fs.readdirSync(dir, { withFileTypes: true });
 
-    constructor(private path: string) {}
+    const directories = result
+        .filter(entry => entry.isDirectory())
+        .filter(entry =>
+        {
+            let allowed = true;
 
-    private getAllowedDirectories = (dir: string): string[] =>
-    {
-        const result = fs.readdirSync(dir, { withFileTypes: true });
-
-        const directories = result
-            .filter(entry => entry.isDirectory())
-            .filter(entry =>
+            try
             {
-                let allowed = true;
+                fs.readdirSync(_path.join(dir, entry.name));
+            }
+            catch (err)
+            {
+                allowed = false;
+            }
 
-                try
-                {
-                    fs.readdirSync(_path.join(dir, entry.name));
-                }
-                catch (err)
-                {
-                    allowed = false;
-                }
+            return allowed;
+        })
+        .map(entry => _path.join(dir, entry.name));
 
-                return allowed;
-            })
-            .map(entry => _path.join(dir, entry.name));
+    return directories;
+}
 
-        return directories;
-    }
+class DocumentQuery
+{
+    constructor(private path: string) {}
 
     public get(): Document | undefined
     {
@@ -70,7 +75,7 @@ class Query
         {
             if (currentDepth > MAX_DEPTH) return;
 
-            const directories = this.getAllowedDirectories(dir);
+            const directories = getAllowedDirectories(dir);
 
             const getFile = (): string | undefined =>
             {
@@ -115,7 +120,7 @@ class Query
 
         for (let i = 0; i < depth; i++)
         {
-            const directories = this.getAllowedDirectories(lastPath);
+            const directories = getAllowedDirectories(lastPath);
 
             if (directories.length > 0)
             {
@@ -142,8 +147,65 @@ class Query
 
         if (document) fs.unlinkSync(document.location);
     }
+}
 
-    public where(filter: QueryFilter): Query
+class CollectionQuery
+{
+    private filters: QueryFilter[] = [];
+
+    constructor(private path: string) {}
+
+    public get(): Collection | undefined
+    {
+        const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
+        {
+            if (currentDepth > MAX_DEPTH) return;
+
+            const directories = getAllowedDirectories(dir);
+
+            const getFile = (): string | undefined =>
+            {
+                for (const directory of directories)
+                {
+                    const result = glob.sync(_path.join(directory, "*.randomdb"));
+
+                    for (const entry of result)
+                    {
+                        let fileContent: Document | undefined;
+
+                        try
+                        {
+                            fileContent = fs.readJSONSync(entry);
+                        }
+                        catch (err)
+                        {}
+
+                        if (fileContent?.metadata.path.startsWith(this.path + "/"))
+                            return entry;
+                    }
+                }
+            }
+
+            const filePath = getFile();
+
+            if (filePath) return filePath;
+
+            directories.forEach(directory => scanDirectory(directory, currentDepth++));
+        }
+
+        const result = scanDirectory(os.homedir(), 0);
+
+        if (result) return fs.readJSONSync(result);
+    }
+
+    public delete(): void
+    {
+        const collection = this.get();
+
+        if (collection) collection.documents.forEach(document => fs.unlinkSync(document.location));
+    }
+
+    public where(filter: QueryFilter): CollectionQuery
     {
         this.filters.push(filter);
 
