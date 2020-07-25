@@ -181,7 +181,17 @@ class CollectionQuery
                         {}
 
                         if (fileContent?.metadata.path.startsWith(this.path + "/"))
-                            return entry;
+                        {
+                            const matchesFilters = this.filters.every(filter =>
+                            {
+                                switch (filter.condition)
+                                {
+                                    case "==": return fileContent?.data[filter.field] === filter.value;
+                                }
+                            });
+
+                            if (matchesFilters) return entry;
+                        }
                     }
                 }
             }
