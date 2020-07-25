@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import _path from "path";
 import random from "random";
-import glob from "glob";
+import glob from "fast-glob";
 import os from "os";
 import crypto from "crypto";
 
@@ -94,7 +94,7 @@ class DocumentQuery
 
 	public get(): Document | undefined
 	{
-		const result = glob.sync(_path.join(os.homedir(), "*.randomdb")).find(entry =>
+		const result = glob.sync(`${os.homedir()}/**/*.randomdb`, { deep: MAX_DEPTH, suppressErrors: true }).find(entry =>
 		{
 			let fileContent: Document | undefined;
 
@@ -220,7 +220,7 @@ class CollectionQuery
 
 	public get(): Collection
 	{
-		const result = glob.sync(_path.join(os.homedir(), "*.randomdb")).filter(entry =>
+		const result = glob.sync(`${os.homedir()}/**/*.randomdb`, { deep: MAX_DEPTH, suppressErrors: true }).filter(entry =>
 		{
 			let fileContent: Document | undefined;
 
