@@ -165,15 +165,21 @@ class DocumentQuery
         fs.writeJSONSync(document.location, document);
     }
 
-    public update(data: DocumentData): void
+    public update(data: DocumentData): void;
+
+    public update(field: string, value: any): void;
+
+    public update(a: DocumentData | string, b?: any): void
     {
         const document = this.get();
 
         if (!document)
             throw new Error(`The document at '${this.path}' does not exist`);
 
-        for (const [ key, value ] of Object.entries(data))
-            document.data[key] = value;
+        if (typeof a === "string") document.data[a] = b;
+        else
+            for (const [ key, value ] of Object.entries(a))
+                document.data[key] = value;
 
         document.metadata.lastModified = new Date();
 
