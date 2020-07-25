@@ -20,6 +20,8 @@ export interface Collection
 export interface DocumentMetadata
 {
     path: string,
+    created: Date,
+    lastModified: Date,
 }
 
 export interface DocumentData
@@ -136,10 +138,14 @@ class DocumentQuery
             }
         }
 
+        const time = new Date();
+
         const document: Document = {
             location: _path.join(lastPath, `${Date.now()}.${crypto.randomBytes(10).toString("hex")}.randomdb`),
             metadata: {
                 path: this.path,
+                created: time,
+                lastModified: time,
             },
             data,
         };
