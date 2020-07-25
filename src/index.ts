@@ -148,7 +148,13 @@ class DocumentQuery
 
 class CollectionQuery
 {
-    private filters: QueryFilter[] = [];
+    private filters: {
+        where: QueryFilter[],
+        limit: number,
+    } = {
+        where: [],
+        limit: Infinity,
+    };
 
     constructor(private path: string) {}
 
@@ -181,7 +187,7 @@ class CollectionQuery
 
                     if (fileContent?.metadata.path.startsWith(this.path + "/"))
                     {
-                        const matchesFilters = this.filters.every(filter =>
+                        const matchesFilters = this.filters.where.every(filter =>
                         {
                             switch (filter.condition)
                             {
@@ -221,7 +227,14 @@ class CollectionQuery
 
     public where(filter: QueryFilter): CollectionQuery
     {
-        this.filters.push(filter);
+        this.filters.where.push(filter);
+
+        return this;
+    }
+
+    public limit(limit: number): CollectionQuery
+    {
+        this.filters.limit = limit;
 
         return this;
     }
