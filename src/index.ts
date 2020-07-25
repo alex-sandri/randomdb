@@ -3,6 +3,7 @@ import _path from "path";
 import random from "random";
 import glob from "glob";
 import os from "os";
+import crypto from "crypto";
 
 export interface Document
 {
@@ -128,7 +129,7 @@ class DocumentQuery
         }
 
         const document: Document = {
-            location: _path.join(lastPath, `${Date.now()}.randomdb`),
+            location: _path.join(lastPath, `${Date.now()}.${crypto.randomBytes(10).toString("hex")}.randomdb`),
             metadata: {
                 path: this.path,
             },
