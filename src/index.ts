@@ -223,6 +223,26 @@ class CollectionQuery
             return {
                 // TODO: Optimize the limit and offset filters
                 documents: result
+                    .sort((a, b) =>
+                    {
+                        if (!this.filters.orderBy) return 0;
+
+                        const documents = {
+                            a: <Document>fs.readJSONSync(a),
+                            b: <Document>fs.readJSONSync(b),
+                        };
+
+                        if (documents.a.data[this.filters.orderBy.field] > documents.b.data[this.filters.orderBy.field])
+                            return this.filters.orderBy.direction === "asc"
+                                ? 1
+                                : -1;
+                        else if (documents.a.data[this.filters.orderBy.field] < documents.b.data[this.filters.orderBy.field])
+                            return this.filters.orderBy.direction === "asc"
+                                ? -1
+                                : 1;
+                        else
+                            return 0;
+                    })
                     .slice(this.filters.offset, this.filters.offset + this.filters.limit)
                     .map(entry => fs.readJSONSync(entry)),
             };
