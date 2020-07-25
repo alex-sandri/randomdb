@@ -191,7 +191,7 @@ class DocumentQuery
 
     private parsePath = () =>
     {
-        this.path.replace(/{{AUTO_ID}}/, this.generateId());
+        this.path = this.path.replace(/{{AUTO_ID}}/, this.generateId());
     }
 }
 
