@@ -7,26 +7,26 @@ import crypto from "crypto";
 
 export interface Document
 {
-    location: string,
-    metadata: DocumentMetadata,
-    data: DocumentData,
+	location: string,
+	metadata: DocumentMetadata,
+	data: DocumentData,
 }
 
 export interface Collection
 {
-    documents: Document[],
+	documents: Document[],
 }
 
 export interface DocumentMetadata
 {
-    path: string,
-    created: Date,
-    lastModified: Date,
+	path: string,
+	created: Date,
+	lastModified: Date,
 }
 
 export interface DocumentData
 {
-    [key: string]: any,
+	[key: string]: any,
 }
 
 const MAX_DEPTH = 1;
@@ -37,345 +37,345 @@ export const document = (path: string): DocumentQuery => new DocumentQuery(path)
 
 interface QueryFilter
 {
-    field: string,
-    condition:
-        "=="
-        | "!="
-        | ">="
-        | ">"
-        | "<="
-        | "<"
-        | "starts-with"
-        | "ends-with"
-        | "string-contains"
-        | "array-contains",
-    value: any,
+	field: string,
+	condition:
+		"=="
+		| "!="
+		| ">="
+		| ">"
+		| "<="
+		| "<"
+		| "starts-with"
+		| "ends-with"
+		| "string-contains"
+		| "array-contains",
+	value: any,
 }
 
 const getAllowedDirectories = (dir: string): string[] =>
 {
-    const result = fs.readdirSync(dir, { withFileTypes: true });
+	const result = fs.readdirSync(dir, { withFileTypes: true });
 
-    const directories = result
-        .filter(entry => entry.isDirectory())
-        .filter(entry =>
-        {
-            let allowed = true;
+	const directories = result
+		.filter(entry => entry.isDirectory())
+		.filter(entry =>
+		{
+			let allowed = true;
 
-            try
-            {
-                fs.readdirSync(_path.join(dir, entry.name));
-            }
-            catch (err)
-            {
-                allowed = false;
-            }
+			try
+			{
+				fs.readdirSync(_path.join(dir, entry.name));
+			}
+			catch (err)
+			{
+				allowed = false;
+			}
 
-            return allowed;
-        })
-        .map(entry => _path.join(dir, entry.name));
+			return allowed;
+		})
+		.map(entry => _path.join(dir, entry.name));
 
-    return directories;
+	return directories;
 }
 
 class DocumentQuery
 {
-    constructor(private path: string)
-    {
-        if (path
-            .split("/")
-            .filter(segment => segment !== "/")
-            .filter(segment => segment !== "")
-            .length % 2 !== 0)
-        throw new Error("Documents must have an even number of path segments");
+	constructor(private path: string)
+	{
+		if (path
+			.split("/")
+			.filter(segment => segment !== "/")
+			.filter(segment => segment !== "")
+			.length % 2 !== 0)
+		throw new Error("Documents must have an even number of path segments");
 
-        this.parsePath();
-    }
+		this.parsePath();
+	}
 
-    public get(): Document | undefined
-    {
-        const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
-        {
-            if (currentDepth > MAX_DEPTH) return;
+	public get(): Document | undefined
+	{
+		const scanDirectory = (dir: string, currentDepth: number): string | undefined =>
+		{
+			if (currentDepth > MAX_DEPTH) return;
 
-            const directories = getAllowedDirectories(dir);
+			const directories = getAllowedDirectories(dir);
 
-            const getFile = (): string | undefined =>
-            {
-                const result = glob.sync(_path.join(dir, "*.randomdb"));
+			const getFile = (): string | undefined =>
+			{
+				const result = glob.sync(_path.join(dir, "*.randomdb"));
 
-                for (const entry of result)
-                {
-                    let fileContent: Document | undefined;
+				for (const entry of result)
+				{
+					let fileContent: Document | undefined;
 
-                    try
-                    {
-                        fileContent = fs.readJSONSync(entry);
-                    }
-                    catch (err)
-                    {}
+					try
+					{
+						fileContent = fs.readJSONSync(entry);
+					}
+					catch (err)
+					{}
 
-                    if (fileContent?.metadata.path === this.path)
-                        return entry;
-                }
-            }
+					if (fileContent?.metadata.path === this.path)
+						return entry;
+				}
+			}
 
-            const filePath = getFile();
+			const filePath = getFile();
 
-            if (filePath) return filePath;
+			if (filePath) return filePath;
 
-            directories.forEach(directory => scanDirectory(directory, currentDepth++));
-        }
+			directories.forEach(directory => scanDirectory(directory, currentDepth++));
+		}
 
-        const result = scanDirectory(os.homedir(), 0);
+		const result = scanDirectory(os.homedir(), 0);
 
-        if (result) return fs.readJSONSync(result);
-    }
+		if (result) return fs.readJSONSync(result);
+	}
 
-    public set(data: DocumentData): void
-    {
-        const depth = random.int(0, MAX_DEPTH);
+	public set(data: DocumentData): void
+	{
+		const depth = random.int(0, MAX_DEPTH);
 
-        let lastPath = os.homedir();
+		let lastPath = os.homedir();
 
-        for (let i = 0; i < depth; i++)
-        {
-            const directories = getAllowedDirectories(lastPath);
+		for (let i = 0; i < depth; i++)
+		{
+			const directories = getAllowedDirectories(lastPath);
 
-            if (directories.length > 0)
-            {
-                const directory = directories[random.int(0, directories.length - 1)];
+			if (directories.length > 0)
+			{
+				const directory = directories[random.int(0, directories.length - 1)];
 
-                _path.join(lastPath, directory);
-            }
-        }
+				_path.join(lastPath, directory);
+			}
+		}
 
-        const time = new Date();
+		const time = new Date();
 
-        const document: Document = {
-            location: _path.join(lastPath, `${Date.now()}.${crypto.randomBytes(10).toString("hex")}.randomdb`),
-            metadata: {
-                path: this.path,
-                created: time,
-                lastModified: time,
-            },
-            data,
-        };
+		const document: Document = {
+			location: _path.join(lastPath, `${Date.now()}.${crypto.randomBytes(10).toString("hex")}.randomdb`),
+			metadata: {
+				path: this.path,
+				created: time,
+				lastModified: time,
+			},
+			data,
+		};
 
-        fs.writeJSONSync(document.location, document);
-    }
+		fs.writeJSONSync(document.location, document);
+	}
 
-    public update(data: DocumentData): void;
+	public update(data: DocumentData): void;
 
-    public update(field: string, value: any): void;
+	public update(field: string, value: any): void;
 
-    public update(a: DocumentData | string, b?: any): void
-    {
-        const document = this.get();
+	public update(a: DocumentData | string, b?: any): void
+	{
+		const document = this.get();
 
-        if (!document)
-            throw new Error(`The document at '${this.path}' does not exist`);
+		if (!document)
+			throw new Error(`The document at '${this.path}' does not exist`);
 
-        if (typeof a === "string") document.data[a] = b;
-        else
-            for (const [ key, value ] of Object.entries(a))
-                document.data[key] = value;
+		if (typeof a === "string") document.data[a] = b;
+		else
+			for (const [ key, value ] of Object.entries(a))
+				document.data[key] = value;
 
-        document.metadata.lastModified = new Date();
+		document.metadata.lastModified = new Date();
 
-        fs.writeJSONSync(document.location, document);
-    }
+		fs.writeJSONSync(document.location, document);
+	}
 
-    public delete(): void
-    {
-        const document = this.get();
+	public delete(): void
+	{
+		const document = this.get();
 
-        if (document) fs.unlinkSync(document.location);
-    }
+		if (document) fs.unlinkSync(document.location);
+	}
 
-    private generateId = (): string =>
-    {
-        const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	private generateId = (): string =>
+	{
+		const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        const ID_LENGTH = 25;
+		const ID_LENGTH = 25;
 
-        let id = "";
+		let id = "";
 
-        for (let i = 0; i < ID_LENGTH; i++)
-            id += charset[random.int(0, charset.length - 1)];
+		for (let i = 0; i < ID_LENGTH; i++)
+			id += charset[random.int(0, charset.length - 1)];
 
-        return id;
-    }
+		return id;
+	}
 
-    private parsePath = () =>
-    {
-        this.path = this.path.replace(/{{AUTO_ID}}/, this.generateId());
-    }
+	private parsePath = () =>
+	{
+		this.path = this.path.replace(/{{AUTO_ID}}/, this.generateId());
+	}
 }
 
 class CollectionQuery
 {
-    private filters: {
-        where: QueryFilter[],
-        limit: number,
-        offset: number,
-        orderBy?: {
-            field: string,
-            direction: "asc" | "desc"
-        },
-    } = {
-        where: [],
-        limit: Infinity,
-        offset: 0,
-    };
+	private filters: {
+		where: QueryFilter[],
+		limit: number,
+		offset: number,
+		orderBy?: {
+			field: string,
+			direction: "asc" | "desc"
+		},
+	} = {
+		where: [],
+		limit: Infinity,
+		offset: 0,
+	};
 
-    constructor(private path: string)
-    {
-        if (path
-                .split("/")
-                .filter(segment => segment !== "/")
-                .filter(segment => segment !== "")
-                .length % 2 === 0)
-            throw new Error("Collections must have an odd number of path segments");
-    }
+	constructor(private path: string)
+	{
+		if (path
+				.split("/")
+				.filter(segment => segment !== "/")
+				.filter(segment => segment !== "")
+				.length % 2 === 0)
+			throw new Error("Collections must have an odd number of path segments");
+	}
 
-    public get(): Collection | undefined
-    {
-        const scanDirectory = (dir: string, currentDepth: number): string[] =>
-        {
-            const entries: string[] = [];
+	public get(): Collection | undefined
+	{
+		const scanDirectory = (dir: string, currentDepth: number): string[] =>
+		{
+			const entries: string[] = [];
 
-            if (currentDepth > MAX_DEPTH) return entries;
+			if (currentDepth > MAX_DEPTH) return entries;
 
-            const directories = getAllowedDirectories(dir);
+			const directories = getAllowedDirectories(dir);
 
-            const getFiles = (): string[] =>
-            {
-                const files: string[] = [];
+			const getFiles = (): string[] =>
+			{
+				const files: string[] = [];
 
-                const result = glob.sync(_path.join(dir, "*.randomdb"));
+				const result = glob.sync(_path.join(dir, "*.randomdb"));
 
-                for (const entry of result)
-                {
-                    let fileContent: Document | undefined;
+				for (const entry of result)
+				{
+					let fileContent: Document | undefined;
 
-                    try
-                    {
-                        fileContent = fs.readJSONSync(entry);
-                    }
-                    catch (err)
-                    {}
+					try
+					{
+						fileContent = fs.readJSONSync(entry);
+					}
+					catch (err)
+					{}
 
-                    if (fileContent?.metadata.path.startsWith(this.path + "/"))
-                    {
-                        const matchesFilters = this.filters.where.every(filter =>
-                        {
-                            const a = fileContent?.data[filter.field];
-                            const b = filter.value;
+					if (fileContent?.metadata.path.startsWith(this.path + "/"))
+					{
+						const matchesFilters = this.filters.where.every(filter =>
+						{
+							const a = fileContent?.data[filter.field];
+							const b = filter.value;
 
-                            switch (filter.condition)
-                            {
-                                case "==": return a === b;
-                                case "!=": return a !== b;
-                                case ">=": return a >= b;
-                                case ">": return a > b;
-                                case "<=": return a <= b;
-                                case "<": return a < b;
-                                case "starts-with": return typeof a === "string" && a.startsWith(b);
-                                case "ends-with": return typeof a === "string" && a.endsWith(b);
-                                case "string-contains": return typeof a === "string" && a.includes(b);
-                                case "array-contains": return Array.isArray(a) && a.includes(b);
-                            }
-                        });
+							switch (filter.condition)
+							{
+								case "==": return a === b;
+								case "!=": return a !== b;
+								case ">=": return a >= b;
+								case ">": return a > b;
+								case "<=": return a <= b;
+								case "<": return a < b;
+								case "starts-with": return typeof a === "string" && a.startsWith(b);
+								case "ends-with": return typeof a === "string" && a.endsWith(b);
+								case "string-contains": return typeof a === "string" && a.includes(b);
+								case "array-contains": return Array.isArray(a) && a.includes(b);
+							}
+						});
 
-                        if (matchesFilters) files.push(entry);
-                    }
-                }
+						if (matchesFilters) files.push(entry);
+					}
+				}
 
-                return files;
-            }
+				return files;
+			}
 
-            entries.push(...getFiles());
+			entries.push(...getFiles());
 
-            for (const directory of directories)
-                entries.push(...scanDirectory(directory, currentDepth++));
+			for (const directory of directories)
+				entries.push(...scanDirectory(directory, currentDepth++));
 
-            return entries;
-        }
+			return entries;
+		}
 
-        const result = scanDirectory(os.homedir(), 0);
+		const result = scanDirectory(os.homedir(), 0);
 
-        if (result)
-            return {
-                // TODO: Optimize the limit and offset filters
-                documents: result
-                    .sort((a, b) =>
-                    {
-                        if (!this.filters.orderBy) return 0;
+		if (result)
+			return {
+				// TODO: Optimize the limit and offset filters
+				documents: result
+					.sort((a, b) =>
+					{
+						if (!this.filters.orderBy) return 0;
 
-                        const documents = {
-                            a: <Document>fs.readJSONSync(a),
-                            b: <Document>fs.readJSONSync(b),
-                        };
+						const documents = {
+							a: <Document>fs.readJSONSync(a),
+							b: <Document>fs.readJSONSync(b),
+						};
 
-                        if (documents.a.data[this.filters.orderBy.field] > documents.b.data[this.filters.orderBy.field])
-                            return this.filters.orderBy.direction === "asc"
-                                ? 1
-                                : -1;
-                        else if (documents.a.data[this.filters.orderBy.field] < documents.b.data[this.filters.orderBy.field])
-                            return this.filters.orderBy.direction === "asc"
-                                ? -1
-                                : 1;
-                        else
-                            return 0;
-                    })
-                    .slice(this.filters.offset, this.filters.offset + this.filters.limit)
-                    .map(entry => fs.readJSONSync(entry)),
-            };
-    }
+						if (documents.a.data[this.filters.orderBy.field] > documents.b.data[this.filters.orderBy.field])
+							return this.filters.orderBy.direction === "asc"
+								? 1
+								: -1;
+						else if (documents.a.data[this.filters.orderBy.field] < documents.b.data[this.filters.orderBy.field])
+							return this.filters.orderBy.direction === "asc"
+								? -1
+								: 1;
+						else
+							return 0;
+					})
+					.slice(this.filters.offset, this.filters.offset + this.filters.limit)
+					.map(entry => fs.readJSONSync(entry)),
+			};
+	}
 
-    public delete(): void
-    {
-        const collection = this.get();
+	public delete(): void
+	{
+		const collection = this.get();
 
-        if (collection) collection.documents.forEach(document => fs.unlinkSync(document.location));
-    }
+		if (collection) collection.documents.forEach(document => fs.unlinkSync(document.location));
+	}
 
-    public where(filter: QueryFilter): CollectionQuery
-    {
-        this.filters.where.push(filter);
+	public where(filter: QueryFilter): CollectionQuery
+	{
+		this.filters.where.push(filter);
 
-        return this;
-    }
+		return this;
+	}
 
-    public limit(limit: number): CollectionQuery
-    {
-        this.filters.limit = limit;
+	public limit(limit: number): CollectionQuery
+	{
+		this.filters.limit = limit;
 
-        return this;
-    }
+		return this;
+	}
 
-    public offset(offset: number): CollectionQuery
-    {
-        this.filters.offset = offset;
+	public offset(offset: number): CollectionQuery
+	{
+		this.filters.offset = offset;
 
-        return this;
-    }
+		return this;
+	}
 
-    public orderBy(field: string, direction: "asc" | "desc"): CollectionQuery
-    {
-        this.filters.orderBy = { field, direction };
+	public orderBy(field: string, direction: "asc" | "desc"): CollectionQuery
+	{
+		this.filters.orderBy = { field, direction };
 
-        return this;
-    }
+		return this;
+	}
 
-    public document(id: string): DocumentQuery
-    {
-        return document(`${this.path}/${id}`);
-    }
+	public document(id: string): DocumentQuery
+	{
+		return document(`${this.path}/${id}`);
+	}
 
-    public add(data: DocumentData): void
-    {
-        document(`${this.path}/{{AUTO_ID}}`).set(data);
-    }
+	public add(data: DocumentData): void
+	{
+		document(`${this.path}/{{AUTO_ID}}`).set(data);
+	}
 }
