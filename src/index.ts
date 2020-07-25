@@ -151,9 +151,11 @@ class CollectionQuery
     private filters: {
         where: QueryFilter[],
         limit: number,
+        offset: number,
     } = {
         where: [],
         limit: Infinity,
+        offset: 0,
     };
 
     constructor(private path: string) {}
@@ -214,8 +216,10 @@ class CollectionQuery
 
         if (result)
             return {
-                // TODO: Optimize the limit filter
-                documents: result.slice(0, this.filters.limit).map(entry => fs.readJSONSync(entry)),
+                // TODO: Optimize the limit and offset filters
+                documents: result
+                    .slice(this.filters.offset, this.filters.limit)
+                    .map(entry => fs.readJSONSync(entry)),
             };
     }
 
@@ -236,6 +240,13 @@ class CollectionQuery
     public limit(limit: number): CollectionQuery
     {
         this.filters.limit = limit;
+
+        return this;
+    }
+
+    public offset(offset: number): CollectionQuery
+    {
+        this.filters.offset = offset;
 
         return this;
     }
