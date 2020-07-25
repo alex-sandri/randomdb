@@ -165,6 +165,8 @@ class DocumentQuery
         for (const [ key, value ] of Object.entries(data))
             document.data[key] = value;
 
+        document.metadata.lastModified = new Date();
+
         fs.writeJSONSync(document.location, document);
     }
 
