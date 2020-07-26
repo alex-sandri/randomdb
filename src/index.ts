@@ -4,6 +4,7 @@ import random from "random";
 import glob from "fast-glob";
 import os from "os";
 import crypto from "crypto";
+import _ from "lodash";
 
 export interface Document
 {
@@ -155,7 +156,7 @@ class DocumentQuery
 		if (!document)
 			throw new Error(`The document at '${this.path}' does not exist`);
 
-		if (typeof a === "string") document.data[a] = b;
+		if (typeof a === "string") _.set(document.data, a, b);
 		else
 			for (const [ key, value ] of Object.entries(a))
 				document.data[key] = value;
