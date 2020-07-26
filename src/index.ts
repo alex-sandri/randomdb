@@ -259,7 +259,6 @@ class CollectionQuery
 		});
 
 		return {
-			// TODO: Optimize the limit and offset filters
 			documents: result
 				.sort((a, b) =>
 				{
