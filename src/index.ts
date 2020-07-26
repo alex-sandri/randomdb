@@ -79,6 +79,45 @@ const getAllowedDirectories = (dir: string): string[] =>
 	return directories;
 };
 
+enum FieldValueType
+{
+	WRITE_TIMESTAMP,
+	ARRAY_UNION,
+	ARRAY_REMOVE,
+}
+
+interface IFieldValue
+{
+	type: FieldValueType,
+	data?: any,
+}
+
+class FieldValue
+{
+	public static writeTimestamp(): IFieldValue
+	{
+		return {
+			type: FieldValueType.WRITE_TIMESTAMP,
+		};
+	}
+
+	public static arrayUnion(value: any): IFieldValue
+	{
+		return {
+			type: FieldValueType.ARRAY_UNION,
+			data: value,
+		};
+	}
+
+	public static arrayRemove(value: any): IFieldValue
+	{
+		return {
+			type: FieldValueType.ARRAY_REMOVE,
+			data: value,
+		};
+	}
+}
+
 class DocumentQuery
 {
 	constructor(private path: string)
