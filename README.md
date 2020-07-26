@@ -2,6 +2,12 @@
 
 A NoSQL database that stores the data randomly in the file system.
 
+## **Disclaimer**
+
+RandomDB is just a personal project. It was never intended to be used in any real world application. It is extremely slow.\
+RandomDB, given that it stores the data randomly in the file system, might cause some issues or even damage your computer.\
+Use this **AT YOUR OWN RISK**.
+
 ## Installation
 
 Before installing, make sure to authenticate with GitHub Package Registry or using a `.npmrc` file. See "[Configuring npm for use with GitHub Package Registry](https://help.github.com/en/articles/configuring-npm-for-use-with-github-package-registry#authenticating-to-github-package-registry)".
