@@ -2,7 +2,7 @@
 
 A NoSQL database that stores the data randomly in the file system.
 
-## **Disclaimer**
+## Disclaimer
 
 RandomDB is just a personal project. It was never intended to be used in any real world application. It is extremely slow.\
 RandomDB, given that it stores the data randomly in the file system, might cause some issues or even damage your computer.\
