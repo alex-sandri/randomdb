@@ -95,7 +95,7 @@ class DocumentQuery
 
 	public get(): Document | undefined
 	{
-		const result = glob.sync(`${os.homedir()}/**/*.randomdb`, { deep: MAX_DEPTH, suppressErrors: true }).find(entry =>
+		const result = glob.sync("**/*.randomdb", { deep: MAX_DEPTH, suppressErrors: true, cwd: os.homedir(), absolute: true }).find(entry =>
 		{
 			let fileContent: Document | undefined;
 
@@ -221,7 +221,7 @@ class CollectionQuery
 
 	public get(): Collection
 	{
-		const result = glob.sync(`${os.homedir()}/**/*.randomdb`, { deep: MAX_DEPTH, suppressErrors: true }).filter(entry =>
+		const result = glob.sync("**/*.randomdb", { deep: MAX_DEPTH, suppressErrors: true, cwd: os.homedir(), absolute: true }).filter(entry =>
 		{
 			let fileContent: Document | undefined;
 
