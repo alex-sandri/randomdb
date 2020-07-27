@@ -178,7 +178,7 @@ class DocumentQuery
 				created: time,
 				lastModified: time,
 			},
-			data,
+			data: this.parseData(data),
 		};
 
 		fs.writeJSONSync(document.location, document);
@@ -199,6 +199,8 @@ class DocumentQuery
 		else
 			for (const [ key, value ] of Object.entries(a))
 				document.data[key] = value;
+
+		document.data = this.parseData(document.data);
 
 		document.metadata.lastModified = new Date();
 
