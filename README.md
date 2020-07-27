@@ -54,6 +54,32 @@ randomDb.document("/path/to/a/document").update({
 });
 ```
 
+#### FieldValue properties
+
+##### writeTimestamp
+
+```typescript
+randomDb.document("/path/to/a/document").update({
+    field: randomDb.FieldValue.writeTimestamp(),
+});
+```
+
+##### arrayUnion
+
+```typescript
+randomDb.document("/path/to/a/document").update({
+    field: randomDb.FieldValue.arrayUnion("value"),
+});
+```
+
+##### arrayRemove
+
+```typescript
+randomDb.document("/path/to/a/document").update({
+    field: randomDb.FieldValue.arrayRemove("value"),
+});
+```
+
 ### Delete a document
 
 ```typescript
