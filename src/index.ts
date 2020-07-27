@@ -257,7 +257,7 @@ class DocumentQuery
 						throw new Error(`'${key}' is not an array`);
 
 					if (document?.data[key])
-						newValue = document.data[key].filter((element: any) => element !== (<IFieldValue>value).data);
+						newValue = _.reject(document.data[key], (<IFieldValue>value).data);
 					break;
 				default:
 					break;
