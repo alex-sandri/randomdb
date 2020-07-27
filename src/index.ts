@@ -230,6 +230,42 @@ class DocumentQuery
 	{
 		this.path = this.path.replace(/{{AUTO_ID}}/, this.generateId());
 	}
+
+	private parseData(data: DocumentData): DocumentData
+	{
+		const document = this.get();
+
+		for (const [ key, value ] of Object.entries(data))
+		{
+			let newValue;
+
+			switch (value.type)
+			{
+				case FieldValueType.WRITE_TIMESTAMP:
+					newValue = new Date();
+					break;
+				case FieldValueType.ARRAY_UNION:
+					if (document?.data[key] && !Array.isArray(document?.data[key]))
+						throw new Error(`'${key}' is not an array`);
+
+					newValue = [ ...document?.data[key], value ];
+					break;
+				case FieldValueType.ARRAY_REMOVE:
+					if (document?.data[key] && !Array.isArray(document?.data[key]))
+						throw new Error(`'${key}' is not an array`);
+
+					if (document?.data[key])
+						newValue = document.data[key].filter((element: any) => element !== value);
+					break;
+				default:
+					break;
+			}
+
+			data[key] = newValue ?? value;
+		}
+
+		return data;
+	}
 }
 
 class CollectionQuery
