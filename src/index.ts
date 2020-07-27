@@ -250,14 +250,14 @@ class DocumentQuery
 					if (document?.data[key] && !Array.isArray(document?.data[key]))
 						throw new Error(`'${key}' is not an array`);
 
-					newValue = [ ...(document?.data[key] ?? []), value ];
+					newValue = [ ...(document?.data[key] ?? []), (<IFieldValue>value).data ];
 					break;
 				case FieldValueType.ARRAY_REMOVE:
 					if (document?.data[key] && !Array.isArray(document?.data[key]))
 						throw new Error(`'${key}' is not an array`);
 
 					if (document?.data[key])
-						newValue = document.data[key].filter((element: any) => element !== value);
+						newValue = document.data[key].filter((element: any) => element !== (<IFieldValue>value).data);
 					break;
 				default:
 					break;
