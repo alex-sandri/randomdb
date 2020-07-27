@@ -165,7 +165,7 @@ class DocumentQuery
 			{
 				const directory = directories[random.int(0, directories.length - 1)];
 
-				lastPath = _path.join(lastPath, directory);
+				lastPath = directory;
 			}
 		}
 
