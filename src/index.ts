@@ -241,7 +241,7 @@ class DocumentQuery
 		{
 			let newValue;
 
-			switch (value.type)
+			switch (value?.type)
 			{
 				case FieldValueType.WRITE_TIMESTAMP:
 					newValue = new Date();
