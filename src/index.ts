@@ -214,6 +214,11 @@ class DocumentQuery
 		if (document) fs.unlinkSync(document.location);
 	}
 
+	public collection(id: string): CollectionQuery
+	{
+		return collection(`${this.path}/${id}`);
+	}
+
 	private generateId = (): string =>
 	{
 		const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
