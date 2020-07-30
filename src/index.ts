@@ -30,7 +30,7 @@ export interface DocumentData
 	[key: string]: any,
 }
 
-const MAX_DEPTH = 1;
+const MAX_DEPTH = 100;
 
 export const collection = (path: string): CollectionQuery => new CollectionQuery(path);
 
