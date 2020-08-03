@@ -1,7 +1,7 @@
 {
   "name": "@alex-sandri/randomdb",
   "version": "1.2.2",
-  "description": "",
+  "description": "A NoSQL database that stores the data randomly in the file system",
   "main": "lib/index.js",
   "scripts": {
     "start": "nodemon -e ts --watch src/ --exec npm run build",
