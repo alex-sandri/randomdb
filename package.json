@@ -1,6 +1,6 @@
 {
   "name": "@alex-sandri/randomdb",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A NoSQL database that stores the data randomly in the file system",
   "main": "lib/index.js",
   "scripts": {
